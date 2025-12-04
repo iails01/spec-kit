@@ -242,6 +242,7 @@ BANNER = """
 """
 
 TAGLINE = "GitHub Spec Kit - Spec-Driven Development Toolkit"
+CODEX_AGENTS_NOTICE = "重要: 不应该也不需要修改工作目录下.specify/templates、.specify/scripts目录内的任何内容，因为它们只是只读的，不需要进行修改。"
 class StepTracker:
     """Track and render hierarchical steps without emojis, similar to Claude Code tree output.
     Supports live auto-refresh via an attached refresh callback.
@@ -942,6 +943,30 @@ def ensure_executable_scripts(project_path: Path, tracker: StepTracker | None = 
             for f in failures:
                 console.print(f"  - {f}")
 
+
+def ensure_codex_agents_notice(project_path: Path) -> None:
+    """Create or update AGENTS.md for Codex with the required read-only notice on the first line."""
+    agents_path = project_path / "AGENTS.md"
+    notice = CODEX_AGENTS_NOTICE
+
+    if agents_path.exists():
+        existing_text = agents_path.read_text(encoding="utf-8")
+        existing_lines = existing_text.splitlines()
+
+        if existing_lines:
+            first_line = existing_lines[0].lstrip("\ufeff")
+            if first_line == notice:
+                return
+
+        remaining = existing_text.lstrip("\ufeff").lstrip("\n")
+        updated_text = notice + "\n"
+        if remaining:
+            updated_text += remaining
+    else:
+        updated_text = notice + "\n"
+
+    agents_path.write_text(updated_text, encoding="utf-8")
+
 @app.command()
 def init(
     project_name: str = typer.Argument(None, help="Name for your new project directory (optional if using --here, or use '.' for current directory)"),
@@ -1127,6 +1152,9 @@ def init(
             download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
 
             ensure_executable_scripts(project_path, tracker=tracker)
+
+            if selected_ai == "codex":
+                ensure_codex_agents_notice(project_path)
 
             if not no_git:
                 tracker.start("git")
@@ -1366,4 +1394,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
