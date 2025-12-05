@@ -242,7 +242,9 @@ BANNER = """
 """
 
 TAGLINE = "GitHub Spec Kit - Spec-Driven Development Toolkit"
-CODEX_AGENTS_NOTICE = "重要: 不应该也不需要修改工作目录下.specify/templates、.specify/scripts目录内的任何内容，因为它们只是只读的，不需要进行修改。"
+CODEX_AGENTS_NOTICE = """
+重要: 不应该也不需要修改工作目录下.specify/templates、.specify/scripts、.codex目录内的任何内容，因为它们只是只读的，不需要进行修改。
+"""
 class StepTracker:
     """Track and render hierarchical steps without emojis, similar to Claude Code tree output.
     Supports live auto-refresh via an attached refresh callback.
